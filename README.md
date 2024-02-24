@@ -4,7 +4,7 @@ The Cloudflare Worker behind the NC api used in some applications
 
 ---
 
-### WARNING: Do NOT actually use this, this entire fork contians many bugs and issues, since it is mostly just a joke project among some friends.
+### WARNING: Do NOT actually use this, this entire repository contians many bugs and issues, since it is mostly just a joke project among some friends.
 
 ---
 
