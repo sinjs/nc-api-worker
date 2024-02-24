@@ -1,6 +1,11 @@
-name = "nc-api-worker"
+name = "nc-api"
 main = "src/index.ts"
 compatibility_date = "2024-02-23"
+
+[[d1_databases]]
+binding = "DB" # i.e. available in your Worker on env.DB
+database_name = "nc-api"
+database_id = "fd925fb4-4537-437c-a42f-695f5fd653d3"
 
 # Variable bindings. These are arbitrary, plaintext strings (similar to environment variables)
 # Note: Use secrets to store sensitive data.
