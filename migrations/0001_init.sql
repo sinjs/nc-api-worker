@@ -1,0 +1,19 @@
+-- Migration number: 0001 	 2024-07-09T12:22:05.859Z
+CREATE TABLE ban (
+  userId TEXT PRIMARY KEY,
+  createdAt DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  reason TEXT,
+  expires DATETIME
+);
+CREATE TABLE badge (
+  userId TEXT PRIMARY KEY,
+  badge TEXT NOT NULL,
+  tooltip TEXT NOT NULL,
+  badgeType TEXT DEFAULT 'donor' NOT NULL
+);
+CREATE TABLE user (
+  id INTEGER PRIMARY KEY,
+  discordUserId TEXT NOT NULL UNIQUE,
+  isAdmin BOOLEAN DEFAULT 0 NOT NULL,
+  apiKey TEXT
+);

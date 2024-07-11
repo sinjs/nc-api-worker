@@ -1,61 +1,37 @@
-import { res } from './util';
+import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+import { HonoEnv } from './util';
+import legacyApp from './apps/_legacy';
+import authApp from './apps/auth';
+import v1BansApp from './apps/v1/bans';
+import v1BadgesApp from './apps/v1/badges';
+import { ZodError } from 'zod';
 
-export interface Env {
-	DB: D1Database;
-}
+import { D1QB } from 'workers-qb';
+const app = new Hono<HonoEnv>();
 
-interface Ban {
-	id: string;
-	reason: string;
-	expires: string | false;
-}
+app.use('/*', (c, next) => {
+	c.set('db', new D1QB(c.env.DB));
+	return next();
+});
 
-export default {
-	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-		const url = new URL(request.url);
+app.use('/*', cors());
 
-		switch (request.method) {
-			case 'GET':
-				switch (url.pathname) {
-					case '/':
-						return res({ message: 'nothing to see here :3' }, 200);
-					case '/sencord/bans':
-						return await this.banHandler(request, url, env, ctx);
-					default:
-						return res({ error: 'route not found' }, 403);
-				}
+app.route('/', legacyApp);
+app.route('/auth', authApp);
+app.route('/v1/bans', v1BansApp);
+app.route('/v1/badges', v1BadgesApp);
 
-			default:
-				return res({ error: 'method not allowed' }, 405);
-		}
-	},
+app.onError((err, c) => {
+	if (err instanceof ZodError) {
+		return c.json({ error: 'Bad Request', issues: err.flatten() }, 400);
+	}
 
-	async banHandler(request: Request, url: URL, env: Env, ctx: ExecutionContext) {
-		const userId = url.searchParams.get('user_id');
+	const uuid = crypto.randomUUID();
+	console.error(`Error: Failed to process request ${uuid}\n`, err);
+	return c.json({ error: 'Internal Server Error' }, 500);
+});
 
-		if (!userId) return res({ error: 'invalid user id' }, 401);
+app.notFound((c) => c.json({ error: 'Not Found' }, 404));
 
-		// Get database result for the bans
-		const dbResult = await env.DB.prepare('SELECT * FROM Bans WHERE UserId = ?').bind(userId).all();
-
-		// Convert the database result into a Ban object (or null)
-		const ban: Ban | null = dbResult.results[0]
-			? {
-					id: dbResult.results[0].UserId as string,
-					reason: dbResult.results[0].Reason as string,
-					expires: (dbResult.results[0].Expires as string) === 'false' ? false : (dbResult.results[0].Expires as string),
-			  }
-			: null;
-
-		// If the ban is not null, the ban is able to expire and the ban has already expired, return a null ban
-		if (ban?.expires && new Date(ban.expires).getTime() - Date.now() < 0) {
-			return res({ banned: false, ban: null });
-		}
-
-		// If the ban is not null, return the ban
-		if (ban) return res({ banned: true, ban }, 200);
-
-		// The user is not banned, return null
-		return res({ banned: false, ban }, 200);
-	},
-};
+export default app;
