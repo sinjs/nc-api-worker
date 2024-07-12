@@ -1,6 +1,4 @@
 -- Migration number: 0002 	 2024-07-12T11:41:30.139Z
--- Create transaction
-BEGIN TRANSACTION;
 -- Rename old table
 ALTER TABLE badge
   RENAME TO old_badge;
@@ -21,5 +19,3 @@ SELECT userId,
 FROM old_badge;
 -- Drop old table
 DROP TABLE old_badge;
--- Commit
-COMMIT;
