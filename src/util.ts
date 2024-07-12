@@ -59,6 +59,7 @@ export type Ban = {
 };
 
 export type Badge = {
+	id: number;
 	userId: string;
 	badge: string;
 	tooltip: string;

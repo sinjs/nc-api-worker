@@ -11,19 +11,28 @@ const app = new Hono<HonoEnv>();
 
 app.get('/', async (c) => {
 	const { results: badges } = await c.get('db').fetchAll<Badge>({ tableName: 'badge' }).execute();
-	return c.json(badges);
+
+	if (!badges) throw new Error('Badges are undefined');
+	if (c.req.query('type') !== 'object') return c.json(badges);
+
+	const object = badges.reduce((acc: Record<string, Omit<Badge, 'userId'>[]>, { userId, ...badge }) => {
+		(acc[userId] = acc[userId] || []).push(badge);
+		return acc;
+	}, {});
+
+	return c.json(object);
 });
 
 app.get('/:userId', async (c) => {
 	const userId = c.req.param('userId');
-	const { results: badge } = await c
+	const { results: badges } = await c
 		.get('db')
-		.fetchOne<Badge>({ tableName: 'badge', where: { conditions: 'discordUserId = ?', params: [userId] } })
+		.fetchAll<Badge>({ tableName: 'badge', where: { conditions: 'discordUserId = ?', params: [userId] } })
 		.execute();
 
-	if (!badge) return c.json({ error: 'Not Found' }, 404);
+	if (!badges) return c.json({ error: 'Not Found' }, 404);
 
-	return c.json(badge);
+	return c.json(badges);
 });
 
 app.put('/', auth, admin, async (c) => {
@@ -55,9 +64,9 @@ app.put('/', auth, admin, async (c) => {
 	return c.body(null, 204);
 });
 
-app.delete('/:userId', auth, admin, async (c) => {
-	const userId = c.req.param('userId');
-	await c.env.DB.prepare('DELETE FROM badge WHERE userId = ?').bind(userId).run();
+app.delete('/:badgeId', auth, admin, async (c) => {
+	const badgeId = z.coerce.number().parse(c.req.param('badgeId'));
+	await c.env.DB.prepare('DELETE FROM badge WHERE id = ?').bind(badgeId).run();
 
 	return c.body(null, 204);
 });
