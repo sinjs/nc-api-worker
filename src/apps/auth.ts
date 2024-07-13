@@ -1,28 +1,36 @@
 import { Hono } from 'hono';
-import { DISCORD_API_ENDPOINT, type HonoEnv, type Jwt, type User } from '../util';
+import { ALLOWED_ORIGINS, DISCORD_API_ENDPOINT, isUrlAllowed, type HonoEnv, type Jwt, type User } from '../util';
 import type { APIUser } from 'discord-api-types/v10';
 import { sign } from '@tsndr/cloudflare-worker-jwt';
+import { cors } from 'hono/cors';
 
 /**
  * Mounted at `/auth`
  */
 const app = new Hono<HonoEnv>();
 
+app.use('/*', cors({ origin: ALLOWED_ORIGINS }));
+
 app.get('/url', (c) => {
+	const redirectUri = c.req.query('redirect_uri');
+	if (!redirectUri || !isUrlAllowed(redirectUri)) return c.json({ error: 'Bad Request', message: 'Invalid redirect' }, 400);
+
 	const url = new URL(`${DISCORD_API_ENDPOINT}/oauth2/authorize`);
 
 	url.searchParams.set('client_id', c.env.DISCORD_CLIENT_ID);
 	url.searchParams.set('response_type', 'code');
-	url.searchParams.set('redirect_uri', c.env.DISCORD_REDIRECT_URI);
+	url.searchParams.set('redirect_uri', redirectUri);
 	url.searchParams.set('scope', 'identify email guilds.join');
 
 	return c.json({ url });
 });
 
-app.get('/callback', async (c) => {
+app.get('/login', async (c) => {
 	const code = c.req.query('code');
+	const redirectUri = c.req.query('redirect_uri');
 
-	if (!code) return c.json({ error: 'Bad Request', message: 'Invalid code parameter' }, 400);
+	if (!redirectUri || !isUrlAllowed(redirectUri)) return c.json({ error: 'Bad Request', message: 'Invalid redirect' }, 400);
+	if (!code) return c.json({ error: 'Bad Request', message: 'Invalid query parameters' }, 400);
 
 	const response: { access_token: string; expires_in: number } = await fetch(`${DISCORD_API_ENDPOINT}/oauth2/token`, {
 		method: 'POST',
@@ -34,7 +42,7 @@ app.get('/callback', async (c) => {
 			client_secret: c.env.DISCORD_CLIENT_SECRET,
 			grant_type: 'authorization_code',
 			code,
-			redirect_uri: c.env.DISCORD_REDIRECT_URI,
+			redirect_uri: redirectUri,
 		}),
 	}).then((response) => response.json());
 
