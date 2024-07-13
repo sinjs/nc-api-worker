@@ -27,7 +27,7 @@ app.get('/:userId', async (c) => {
 	const userId = c.req.param('userId');
 	const { results: badges } = await c
 		.get('db')
-		.fetchAll<Badge>({ tableName: 'badge', where: { conditions: 'discordUserId = ?', params: [userId] } })
+		.fetchAll<Badge>({ tableName: 'badge', where: { conditions: 'userId = ?', params: [userId] } })
 		.execute();
 
 	if (!badges) return c.json({ error: 'Not Found' }, 404);
@@ -50,14 +50,6 @@ app.put('/', auth, admin, async (c) => {
 		.insert<Badge>({
 			tableName: 'badge',
 			data: body,
-			onConflict: {
-				column: 'userId',
-				data: {
-					badge: new Raw('excluded.badge'),
-					tooltip: new Raw('excluded.tooltip'),
-					badgeType: new Raw('excluded.badgeType'),
-				},
-			},
 		})
 		.execute();
 
