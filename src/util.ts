@@ -74,7 +74,22 @@ export type User = {
 };
 
 export const DISCORD_API_ENDPOINT = 'https://discord.com/api/v10';
+export const ALLOWED_ORIGINS = [
+	'https://admin.nigga.church',
+	'https://api.nigga.church',
+	'http://localhost:4321',
+	'http://localhost:44427',
+];
 
 export function basicAuthHeader(username: string, password: string, includePrefix = true) {
 	return `${includePrefix ? 'Bearer ' : ''}${btoa(`${username}:${password}`)}`;
+}
+
+export function isUrlAllowed(url: string) {
+	try {
+		return ALLOWED_ORIGINS.includes(new URL(url).origin);
+	} catch (error) {
+		// Parser error
+		return false;
+	}
 }
