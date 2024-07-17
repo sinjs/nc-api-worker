@@ -18,11 +18,15 @@ type ReleasesEnv = {
 const parseAssetType = (name: string): AssetType | null => {
 	switch (name) {
 		case 'VencordInstaller.exe':
+		case 'SencordInstaller.exe':
 			return 'windows-gui';
+		case 'SencordInstallerCli.exe':
 		case 'VencordInstallerCli.exe':
 			return 'windows-cli';
+		case 'SencordInstaller.MacOS.zip':
 		case 'VencordInstaller.MacOS.zip':
 			return 'macos-gui';
+		case 'SencordInstallerCli-linux':
 		case 'VencordInstallerCli-linux':
 			return 'linux-cli';
 		default:
@@ -131,7 +135,7 @@ app.get('/:project/latest', async (c) => {
 			octokit: c.get('octokit'),
 			project: c.get('project'),
 			executionCtx: c.executionCtx,
-		})
+		}),
 	);
 });
 
@@ -156,7 +160,7 @@ app.get('/:project/latest/download/:assetType', async (c) => {
 				message:
 					'Asset does not exist. The reason for this might be that the release is still being compiled. This takes about 10-15 minutes to complete.',
 			},
-			404
+			404,
 		);
 
 	const assetStream = await getReleaseAsset({
