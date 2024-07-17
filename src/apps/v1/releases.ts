@@ -98,6 +98,17 @@ const getReleaseAsset = async ({
  */
 const app = new Hono<HonoEnv & ReleasesEnv>();
 
+app.get('/sencord/latest', async (c) => {
+	return c.json(
+		await getRelease({
+			cache: c.env.CACHE,
+			octokit: c.get('octokit'),
+			project: { owner: 'sinjs', repo: 'sencord' },
+			executionCtx: c.executionCtx,
+		}),
+	);
+});
+
 app.use('/:project/*', async (c, next) => {
 	const projects: Record<string, Project | undefined> = {
 		sencordinstaller: { owner: 'sinjs', repo: 'sencordinstaller' },
