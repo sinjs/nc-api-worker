@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { ALLOWED_ORIGINS, DISCORD_API_ENDPOINT, isUrlAllowed, type HonoEnv, type Jwt, type User } from '../util';
+import { ALLOWED_ORIGINS, DISCORD_API_ENDPOINT, isUrlAllowed, type HonoEnv, type Jwt, type User } from '../util.js';
 import type { APIUser } from 'discord-api-types/v10';
 import { sign } from '@tsndr/cloudflare-worker-jwt';
 import { cors } from 'hono/cors';
@@ -32,7 +32,7 @@ app.get('/login', async (c) => {
 	if (!redirectUri || !isUrlAllowed(redirectUri)) return c.json({ error: 'Bad Request', message: 'Invalid redirect' }, 400);
 	if (!code) return c.json({ error: 'Bad Request', message: 'Invalid query parameters' }, 400);
 
-	const response: { access_token: string; expires_in: number } = await fetch(`${DISCORD_API_ENDPOINT}/oauth2/token`, {
+	const response = (await fetch(`${DISCORD_API_ENDPOINT}/oauth2/token`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
@@ -44,7 +44,7 @@ app.get('/login', async (c) => {
 			code,
 			redirect_uri: redirectUri,
 		}),
-	}).then((response) => response.json());
+	}).then((response) => response.json())) as { access_token: string; expires_in: number };
 
 	console.log(response);
 
@@ -52,14 +52,14 @@ app.get('/login', async (c) => {
 
 	console.log(access_token, expires_in);
 
-	const discordUser: APIUser = await fetch(`${DISCORD_API_ENDPOINT}/users/@me`, {
+	const discordUser = (await fetch(`${DISCORD_API_ENDPOINT}/users/@me`, {
 		headers: {
 			Authorization: `Bearer ${access_token}`,
 		},
 	}).then((response) => {
 		if (!response.ok) throw new Error(`Response failed with status code ${response.status}`);
 		return response.json();
-	});
+	})) as APIUser;
 
 	let user = await c.env.DB.prepare('SELECT * FROM user WHERE discordUserId = ?').bind(discordUser.id).first<User>();
 

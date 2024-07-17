@@ -11,6 +11,9 @@ database_name = "nc-api"
 database_id = "fd925fb4-4537-437c-a42f-695f5fd653d3"
 preview_database_id = "nc-api-local-test-db"
 
+[[kv_namespaces]]
+binding = "CACHE"
+id = "63d076e2eb614a0b8ac5cd72818897fc"
 
 # Variable bindings. These are arbitrary, plaintext strings (similar to environment variables)
 # Note: Use secrets to store sensitive data.

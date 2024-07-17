@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import type { HonoEnv } from '../util';
+import type { HonoEnv } from '../util.js';
 
 /**
  * Mouted at `/`

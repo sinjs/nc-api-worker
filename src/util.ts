@@ -1,15 +1,26 @@
 import { HandlerInterface } from 'hono/types';
-import { TokenVariable } from './middleware/auth';
+import { TokenVariable } from './middleware/auth.js';
 import { D1QB } from 'workers-qb';
+import { Octokit } from 'octokit';
 
 export type Bindings = {
 	DB: D1Database;
+	CACHE: KVNamespace;
 	DISCORD_CLIENT_ID: string;
 	DISCORD_CLIENT_SECRET: string;
 	DISCORD_REDIRECT_URI: string;
 	JWT_SECRET: string;
+	GITHUB_PAT: string;
 };
-export type HonoEnv = { Bindings: Bindings; Variables: { token?: TokenVariable; db: D1QB } };
+
+export type HonoEnv = {
+	Bindings: Bindings;
+	Variables: {
+		token?: TokenVariable;
+		db: D1QB;
+		octokit: Octokit;
+	};
+};
 export type Handler = HandlerInterface<HonoEnv>;
 
 export type Jwt = {

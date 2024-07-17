@@ -1,6 +1,6 @@
 import { decode, JwtPayload, verify } from '@tsndr/cloudflare-worker-jwt';
 import { createMiddleware } from 'hono/factory';
-import { HonoEnv, Jwt, User } from '../util';
+import { HonoEnv, Jwt, User } from '../util.js';
 
 export type TokenVariable = JwtPayload<Jwt> & { raw: string };
 

@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
-import { Badge, HonoEnv } from '../../util';
+import { Badge, HonoEnv } from '../../util.js';
 import { Raw } from 'workers-qb';
-import { admin, auth } from '../../middleware/auth';
+import { admin, auth } from '../../middleware/auth.js';
 import { z } from 'zod';
 
 /**

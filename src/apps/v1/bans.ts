@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
-import { Ban, HonoEnv } from '../../util';
-import { admin, auth } from '../../middleware/auth';
+import { Ban, HonoEnv } from '../../util.js';
+import { admin, auth } from '../../middleware/auth.js';
 import { z } from 'zod';
 
 /**
@@ -10,7 +10,7 @@ const app = new Hono<HonoEnv>();
 
 app.get('/', auth, admin, async (c) => {
 	const { results: bans } = await c.env.DB.prepare('SELECT * FROM ban').all<Ban>();
-	return c.json({ bans });
+	return c.json(bans);
 });
 
 app.get('/:userId', async (c) => {
