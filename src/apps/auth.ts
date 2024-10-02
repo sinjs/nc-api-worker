@@ -78,7 +78,7 @@ app.get('/login', async (c) => {
 			name: discordUser.username,
 			uid: user!.id,
 		} satisfies Jwt,
-		c.env.JWT_SECRET
+		c.env.JWT_SECRET,
 	);
 
 	return c.json({ token });

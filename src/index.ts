@@ -6,6 +6,8 @@ import authApp from './apps/auth.js';
 import v1BansApp from './apps/v1/bans.js';
 import v1BadgesApp from './apps/v1/badges.js';
 import v1ReleasesApp from './apps/v1/releases.js';
+import v1IpApp from './apps/v1/ip.js';
+
 import { ZodError } from 'zod';
 
 import { D1QB } from 'workers-qb';
@@ -29,6 +31,7 @@ app.route('/auth', authApp);
 app.route('/v1/bans', v1BansApp);
 app.route('/v1/badges', v1BadgesApp);
 app.route('/v1/releases', v1ReleasesApp);
+app.route('/v1/ip', v1IpApp);
 
 // TODO: Finish API docs
 // app.get('/v1/docs', apiReference({ spec: { content: document } }));
