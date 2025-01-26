@@ -11,7 +11,7 @@ import { JSONValue } from 'hono/utils/types';
 const app = new Hono<HonoEnv>();
 
 app.get('/', async (c) => {
-	const response = await fetch(`https://api.nigga.church/v2/badges/${new URL(c.req.url).search}`);
+	const response = await fetch(`https://api.nigga.church/v2/badges${new URL(c.req.url).search}`);
 	const json: any = await response.json();
 	const badges = json.map((badge: any) => ({
 		id: badge.id,
