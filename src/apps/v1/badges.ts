@@ -12,14 +12,28 @@ const app = new Hono<HonoEnv>();
 
 app.get('/', async (c) => {
 	const response = await fetch(`https://api.nigga.church/v2/badges/${new URL(c.req.url).search}`);
-	const json = await response.json();
-	return c.json(json as object);
+	const json: any = await response.json();
+	const badges = json.map((badge: any) => ({
+		id: badge.id,
+		userId: badge.user_id,
+		badge: badge.badge,
+		tooltip: badge.tooltip,
+		badgeType: badge.badge_type,
+	}));
+	return c.json(badges);
 });
 
 app.get('/:userId', async (c) => {
 	const response = await fetch(`https://api.nigga.church/v2/badges/${c.req.param('userId')}${new URL(c.req.url).search}`);
-	const json = await response.json();
-	return c.json(json as object);
+	const json: any = await response.json();
+	const badges = json.map((badge: any) => ({
+		id: badge.id,
+		userId: badge.user_id,
+		badge: badge.badge,
+		tooltip: badge.tooltip,
+		badgeType: badge.badge_type,
+	}));
+	return c.json(badges);
 });
 
 app.put('/', (c) =>
