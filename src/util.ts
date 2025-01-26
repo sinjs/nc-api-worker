@@ -84,11 +84,6 @@ export type User = {
 	apiKey: string | null;
 };
 
-export type BanV2 = {
-	user_id: string;
-	created_at: string;
-};
-
 export const DISCORD_API_ENDPOINT = 'https://discord.com/api/v10';
 export const ALLOWED_ORIGINS = [
 	'https://admin.nigga.church',
