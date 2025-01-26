@@ -15,9 +15,10 @@ app.get('/', auth, admin, async (c) => {
 app.get('/:userId', async (c) => {
 	const userId = c.req.param('userId');
 
-	const ban = await fetch(`https://api.nigga.church/v2/bans/${userId}`).then((response) => response.json());
+	const response = await fetch(`https://api.nigga.church/v2/bans/${userId}`);
+	const ban = await response.json();
 
-	if (!ban) return c.json({ banned: false });
+	if (!response.ok || !ban) return c.json({ banned: false });
 	return c.json({ banned: true, ban });
 });
 
